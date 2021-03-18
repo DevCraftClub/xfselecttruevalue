@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dleplugin>
+	<name>XF Select - вывод правильного значения</name>
+	<description>Добавляет следующие теги [xfvalue_tagvalue_] и [xfvalue_tagvalue_url_] в короткую, полную и кастомизированную новость.
+Если выбрано select и значения указаны как &quot;latin|по русски&quot;, то эти теги будут выводить значение указанное после |.</description>
+	<icon></icon>
+	<version>1</version>
+	<dleversion>13</dleversion>
+	<versioncompare>greater</versioncompare>
+	<upgradeurl></upgradeurl>
+	<filedelete>0</filedelete>
+	<needplugin></needplugin>
+	<mnotice>0</mnotice>
+	<mysqlinstall><![CDATA[]]></mysqlinstall>
+	<mysqlupgrade><![CDATA[]]></mysqlupgrade>
+	<mysqlenable><![CDATA[]]></mysqlenable>
+	<mysqldisable><![CDATA[]]></mysqldisable>
+	<mysqldelete><![CDATA[]]></mysqldelete>
+	<phpinstall><![CDATA[]]></phpinstall>
+	<phpupgrade><![CDATA[]]></phpupgrade>
+	<phpenable><![CDATA[]]></phpenable>
+	<phpdisable><![CDATA[]]></phpdisable>
+	<phpdelete><![CDATA[]]></phpdelete>
+	<notice><![CDATA[]]></notice>
+	<file name="engine/modules/show.full.php">
+		<operation action="before">
+			<searchcode><![CDATA[if ( $value[6] AND !empty( $xfieldsdata[$value[0]] ) ) {]]></searchcode>
+			<replacecode><![CDATA[				// MaHarder
+				if ($value[3] == "select" ) {
+
+					if (!$xfieldsdata[$value[0]]) {
+						$tpl->set("[xfvalue_tagvalue_{$value[0]}]", '');
+						$tpl->set("[xfvalue_tagvalue_url_{$value[0]}]", '');
+					} else {
+						$xf_val = array();
+						$xf_val_url = array();
+						$xf_splitted = explode(',', $xfieldsdata[$value[0]]);
+						foreach (preg_split("/((\r?\n)|(\r\n?))/", $value[4]) as $line) {
+							$select_values = explode('|', $line);
+							$tag_name = $select_values[0];
+							$tag_val = $tag_name;
+
+							foreach($xf_splitted as $xf) {
+								if ($tag_name == $xf) {
+									if (count($select_values) > 1) {
+										$tag_val = $select_values[1];
+									}
+									$tag_val = trim($tag_val);
+
+									$xf_val[] = $tag_val;
+									if ($value[6]) {
+										$value4 = str_replace(['&#039;', '&quot;', '&amp;', '&#123;', '&#91;', '&#58;'], ["'", '"', '&', '{', '[', ':'], $tag_name);
+
+										if ($config['allow_alt_url']) {
+											$xf_val_url[] = '<a href="'.$config['http_home_url'].'xfsearch/'.$value[0].'/'.rawurlencode($value4).'/">'.$tag_val.'</a>';
+										} else {
+											$xf_val_url[] = "<a href=\"{$PHP_SELF}?do=xfsearch&amp;xfname=".$value[0].'&amp;xf='.rawurlencode($value4).'">'.$tag_val.'</a>';
+										}
+									} else {
+										$xf_val_url[] = $tag_val;
+									}
+								}
+							}
+						}
+                      
+						$sep_sign = ( empty($value[21]) ) ? ', ' : $value[21];
+						$tpl->set("[xfvalue_tagvalue_{$value[0]}]", implode($sep_sign, $xf_val));
+						$tpl->set("[xfvalue_tagvalue_url_{$value[0]}]", implode($sep_sign, $xf_val_url));
+					}
+
+				} else {
+                	$tpl->set("[xfvalue_tagvalue_{$value[0]}]", '');
+					$tpl->set("[xfvalue_tagvalue_url_{$value[0]}]", '');
+                }]]></replacecode>
+		</operation>
+	</file>
+	<file name="engine/modules/show.short.php">
+		<operation action="before">
+			<searchcode><![CDATA[if ( $value[6] AND !empty( $xfieldsdata[$value[0]] ) ) {]]></searchcode>
+			<replacecode><![CDATA[				// MaHarder
+				if ($value[3] == "select" ) {
+
+					if (!$xfieldsdata[$value[0]]) {
+						$tpl->set("[xfvalue_tagvalue_{$value[0]}]", '');
+						$tpl->set("[xfvalue_tagvalue_url_{$value[0]}]", '');
+					} else {
+						$xf_val = array();
+						$xf_val_url = array();
+						$xf_splitted = explode(',', $xfieldsdata[$value[0]]);
+						foreach (preg_split("/((\r?\n)|(\r\n?))/", $value[4]) as $line) {
+							$select_values = explode('|', $line);
+							$tag_name = $select_values[0];
+							$tag_val = $tag_name;
+
+							foreach($xf_splitted as $xf) {
+								if ($tag_name == $xf) {
+									if (count($select_values) > 1) {
+										$tag_val = $select_values[1];
+									}
+									$tag_val = trim($tag_val);
+
+									$xf_val[] = $tag_val;
+									if ($value[6]) {
+										$value4 = str_replace(['&#039;', '&quot;', '&amp;', '&#123;', '&#91;', '&#58;'], ["'", '"', '&', '{', '[', ':'], $tag_name);
+
+										if ($config['allow_alt_url']) {
+											$xf_val_url[] = '<a href="'.$config['http_home_url'].'xfsearch/'.$value[0].'/'.rawurlencode($value4).'/">'.$tag_val.'</a>';
+										} else {
+											$xf_val_url[] = "<a href=\"{$PHP_SELF}?do=xfsearch&amp;xfname=".$value[0].'&amp;xf='.rawurlencode($value4).'">'.$tag_val.'</a>';
+										}
+									} else {
+										$xf_val_url[] = $tag_val;
+									}
+								}
+							}
+						}
+                      
+						$sep_sign = ( empty($value[21]) ) ? ', ' : $value[21];
+						$tpl->set("[xfvalue_tagvalue_{$value[0]}]", implode($sep_sign, $xf_val));
+						$tpl->set("[xfvalue_tagvalue_url_{$value[0]}]", implode($sep_sign, $xf_val_url));
+					}
+
+				} else {
+                	$tpl->set("[xfvalue_tagvalue_{$value[0]}]", '');
+					$tpl->set("[xfvalue_tagvalue_url_{$value[0]}]", '');
+                }]]></replacecode>
+		</operation>
+	</file>
+	<file name="engine/modules/show.custom.php">
+		<operation action="before">
+			<searchcode><![CDATA[if ( $value[6] AND !empty( $xfieldsdata[$value[0]] ) ) {]]></searchcode>
+			<replacecode><![CDATA[				// MaHarder
+				if ($value[3] == "select" ) {
+
+					if (!$xfieldsdata[$value[0]]) {
+						$tpl->set("[xfvalue_tagvalue_{$value[0]}]", '');
+						$tpl->set("[xfvalue_tagvalue_url_{$value[0]}]", '');
+					} else {
+						$xf_val = array();
+						$xf_val_url = array();
+						$xf_splitted = explode(',', $xfieldsdata[$value[0]]);
+						foreach (preg_split("/((\r?\n)|(\r\n?))/", $value[4]) as $line) {
+							$select_values = explode('|', $line);
+							$tag_name = $select_values[0];
+							$tag_val = $tag_name;
+
+							foreach($xf_splitted as $xf) {
+								if ($tag_name == $xf) {
+									if (count($select_values) > 1) {
+										$tag_val = $select_values[1];
+									}
+									$tag_val = trim($tag_val);
+
+									$xf_val[] = $tag_val;
+									if ($value[6]) {
+										$value4 = str_replace(['&#039;', '&quot;', '&amp;', '&#123;', '&#91;', '&#58;'], ["'", '"', '&', '{', '[', ':'], $tag_name);
+
+										if ($config['allow_alt_url']) {
+											$xf_val_url[] = '<a href="'.$config['http_home_url'].'xfsearch/'.$value[0].'/'.rawurlencode($value4).'/">'.$tag_val.'</a>';
+										} else {
+											$xf_val_url[] = "<a href=\"{$PHP_SELF}?do=xfsearch&amp;xfname=".$value[0].'&amp;xf='.rawurlencode($value4).'">'.$tag_val.'</a>';
+										}
+									} else {
+										$xf_val_url[] = $tag_val;
+									}
+								}
+							}
+						}
+                      
+						$sep_sign = ( empty($value[21]) ) ? ', ' : $value[21];
+						$tpl->set("[xfvalue_tagvalue_{$value[0]}]", implode($sep_sign, $xf_val));
+						$tpl->set("[xfvalue_tagvalue_url_{$value[0]}]", implode($sep_sign, $xf_val_url));
+					}
+
+				} else {
+                	$tpl->set("[xfvalue_tagvalue_{$value[0]}]", '');
+					$tpl->set("[xfvalue_tagvalue_url_{$value[0]}]", '');
+                }]]></replacecode>
+		</operation>
+	</file>
+</dleplugin>
